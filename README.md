@@ -1,1 +1,3 @@
-# simple-router
+# Rodri\SimpleRouter
+
+Router to API applications
