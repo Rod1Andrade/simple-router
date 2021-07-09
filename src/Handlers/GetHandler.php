@@ -25,6 +25,9 @@ class GetHandler extends RouterHandler
             return new Response(['message' => "Hello from GetHandle: $this->uri"]);
         }
 
-        return $this->getHandler()->handle($request);
+        if($this->getHandler())
+            return $this->getHandler()->handle($request);
+        else
+            return new Response(['Error' => "Not exist a handler to this request"]);
     }
 }

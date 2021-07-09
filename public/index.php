@@ -15,4 +15,6 @@ $router->put(['/hello']);
 $router->patch(['/hello']);
 $router->delete(['/hello']);
 
+$router->get(['/message/:id']);
+
 $router->dispatch();
