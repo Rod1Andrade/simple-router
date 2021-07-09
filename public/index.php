@@ -4,17 +4,17 @@ require "../vendor/autoload.php";
 
 $router = new \Rodri\SimpleRouter\Router();
 
-header('Content-type: application/json');
+# Namespaces Configurations
+$router->setControllerNamespace('Rodri\SimpleRouter\Controllers');
+$router->setMiddlewareNamespace('Rodri\SimpleRouter\Middlewares');
 
-$router->get(['/hello']);
-$router->get(['/hello/world']);
-$router->get(['/hello/universe']);
+# Header Router Configurations
+$router->headerConfigs([
+    'Content-type: application/json'
+]);
 
-$router->post(['/hello']);
-$router->put(['/hello']);
-$router->patch(['/hello']);
-$router->delete(['/hello']);
+# Routers
+$router->get(['/hello'], 'HelloController#hello');
 
-$router->get(['/message/:id']);
-
+# Execution of set router
 $router->dispatch();
