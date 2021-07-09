@@ -14,7 +14,10 @@ $router->headerConfigs([
 ]);
 
 # Routers
-$router->get(['/hello'], 'HelloController#hello');
+$router->get(['/hello'], 'HelloControllerExample#hello');
+$router->get(['/hello/message/:id'], 'HelloControllerExample#helloByMessage');
+
+$router->post(['/post'], 'HelloControllerExample#postTest');
 
 # Execution of set router
 $router->dispatch();

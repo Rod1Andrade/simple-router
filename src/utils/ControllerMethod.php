@@ -9,6 +9,12 @@ use ReflectionMethod;
 use Rodri\SimpleRouter\Request;
 use Rodri\SimpleRouter\Response;
 
+/**
+ * Class ControllerMethod
+ * @package Rodri\SimpleRouter\utils
+ * @author Rodrigo Andrade
+ * @version 1.0.0
+ */
 class ControllerMethod
 {
     private ReflectionMethod $reflectionMethod;

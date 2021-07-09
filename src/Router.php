@@ -5,11 +5,18 @@ namespace Rodri\SimpleRouter;
 
 use Exception;
 use ReflectionException;
-use Rodri\SimpleRouter\Handlers\GetHandler;
+use Rodri\SimpleRouter\Handlers\HttpHandler;
 use Rodri\SimpleRouter\Handlers\RouterHandler;
 
+/**
+ * Class Router
+ * @package Rodri\SimpleRouter
+ * @author Rodrigo Andrade
+ * @version 1.0.0
+ */
 class Router
 {
+    # Attributes
     private ?RouterHandler $baseRouterHandler;
     private string $controllerNamespace;
 
@@ -18,11 +25,17 @@ class Router
         $this->baseRouterHandler = null;
     }
 
+    /**
+     * @param string $namespace
+     */
     public function setControllerNamespace(string $namespace): void
     {
         $this->controllerNamespace = $namespace;
     }
 
+    /**
+     * @param string $string
+     */
     public function setMiddlewareNamespace(string $string): void
     {
     }
@@ -58,16 +71,65 @@ class Router
      * GET
      * @param array $routerOptions Router options [0] => '/router' ['middleware' => Middleware
      * @param String $controller Controller by pattern Controller#method
+     * @throws Exception
      */
     public function get(array $routerOptions, string $controller): void
     {
-        try {
-            $this->addRouterHandler(
-                new GetHandler($routerOptions[0], $this->concatControllerAndNamespace($controller))
-            );
-        } catch (Exception $e) {
-            var_dump($e);
-        }
+        $this->addRouterHandler(
+            new HttpHandler($routerOptions[0], $this->concatControllerAndNamespace($controller), 'GET')
+        );
+    }
+
+    /**
+     * POST
+     * @param array $routerOptions Router options [0] => '/router' ['middleware' => Middleware
+     * @param String $controller Controller by pattern Controller#method
+     * @throws Exception
+     */
+    public function post(array $routerOptions, string $controller): void
+    {
+        $this->addRouterHandler(
+            new HttpHandler($routerOptions[0], $this->concatControllerAndNamespace($controller), 'POST')
+        );
+    }
+
+    /**
+     * PUT
+     * @param array $routerOptions Router options [0] => '/router' ['middleware' => Middleware
+     * @param String $controller Controller by pattern Controller#method
+     * @throws Exception
+     */
+    public function put(array $routerOptions, string $controller): void
+    {
+        $this->addRouterHandler(
+            new HttpHandler($routerOptions[0], $this->concatControllerAndNamespace($controller), 'PUT')
+        );
+    }
+
+    /**
+     * PATCH
+     * @param array $routerOptions Router options [0] => '/router' ['middleware' => Middleware
+     * @param String $controller Controller by pattern Controller#method
+     * @throws Exception
+     */
+    public function patch(array $routerOptions, string $controller): void
+    {
+        $this->addRouterHandler(
+            new HttpHandler($routerOptions[0], $this->concatControllerAndNamespace($controller), 'PATCH')
+        );
+    }
+
+    /**
+     * DELETE
+     * @param array $routerOptions Router options [0] => '/router' ['middleware' => Middleware
+     * @param String $controller Controller by pattern Controller#method
+     * @throws Exception
+     */
+    public function delete(array $routerOptions, string $controller): void
+    {
+        $this->addRouterHandler(
+            new HttpHandler($routerOptions[0], $this->concatControllerAndNamespace($controller), 'DELETE')
+        );
     }
 
     /**

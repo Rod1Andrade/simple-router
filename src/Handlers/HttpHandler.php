@@ -9,8 +9,10 @@ use JetBrains\PhpStorm\Pure;
 /**
  * Class GetHandler - Handler to GET HTTP REQUESTS
  * @package Rodri\SimpleRouter\Handlers
+ * @author Rodrigo Andrade
+ * @version 1.0.0
  */
-class GetHandler extends RouterHandler
+class HttpHandler extends RouterHandler
 {
     #[Pure] public function __construct(string $uri, string $controller, string $method = 'GET')
     {

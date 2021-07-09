@@ -7,6 +7,7 @@ use ReflectionException;
 use Rodri\SimpleRouter\Request;
 use Rodri\SimpleRouter\Response;
 use Rodri\SimpleRouter\utils\ControllerMethod;
+use Rodri\SimpleRouter\utils\StatusCode;
 
 /**
  * Class RouterHandler
@@ -38,7 +39,10 @@ abstract class RouterHandler
         if($this->validateRouter($request))
             return ControllerMethod::build($this->controller)->call($request);
 
-        return $this->getHandler()->handle($request);
+        if($this->getHandler())
+            return $this->getHandler()->handle($request);
+
+        return new Response(null, StatusCode::BAD_REQUEST);
     }
 
     /**
