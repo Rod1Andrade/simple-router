@@ -19,14 +19,6 @@ abstract class RouterHandler
 {
     protected ?RouterHandler $handler;
 
-    public function __construct(
-        protected string $uri,
-        protected string $method,
-        protected string $controller
-    )
-    {
-    }
-
     /**
      * Execute the request and return a response to expected
      * handle.
@@ -34,16 +26,7 @@ abstract class RouterHandler
      * @return Response
      * @throws ReflectionException
      */
-    public function handle(Request $request): Response
-    {
-        if($this->validateRouter($request))
-            return ControllerMethod::build($this->controller)->call($request);
-
-        if($this->getHandler())
-            return $this->getHandler()->handle($request);
-
-        return new Response(null, StatusCode::BAD_REQUEST);
-    }
+    public abstract function handle(Request $request): Response;
 
     /**
      * @param RouterHandler|null $handler
@@ -61,15 +44,5 @@ abstract class RouterHandler
     public function getHandler(): ?RouterHandler
     {
         return $this->handler;
-    }
-
-    /**
-     * Validate Router by request uri and method
-     * @param Request $request
-     * @return bool
-     */
-    private function validateRouter(Request $request): bool
-    {
-        return $request->uri($this->uri) && $request->method($this->method);
     }
 }

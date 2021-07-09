@@ -11,7 +11,8 @@
     "authors": [
         {
             "name": "Rod1Andrade",
-            "email": "rodrigopires.profissional@gmail.com"
+            "email": "rodrigopires.profissional@gmail.com",
+            "role": "dev"
         }
     ],
     "minimum-stability": "dev",

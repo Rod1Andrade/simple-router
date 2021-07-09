@@ -26,5 +26,7 @@ class Response
     {
         if($this->response != null)
             return json_encode($this->response);
+
+        return json_encode('');
     }
 }

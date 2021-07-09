@@ -3,8 +3,10 @@
 
 namespace Rodri\SimpleRouter;
 
+use Closure;
 use Exception;
 use ReflectionException;
+use Rodri\SimpleRouter\Handlers\GroupHttpHandler;
 use Rodri\SimpleRouter\Handlers\HttpHandler;
 use Rodri\SimpleRouter\Handlers\RouterHandler;
 
@@ -19,10 +21,12 @@ class Router
     # Attributes
     private ?RouterHandler $baseRouterHandler;
     private string $controllerNamespace;
+    private bool $debugMode;
 
     public function __construct()
     {
         $this->baseRouterHandler = null;
+        $this->debugMode = false;
     }
 
     /**
@@ -38,6 +42,15 @@ class Router
      */
     public function setMiddlewareNamespace(string $string): void
     {
+    }
+
+    /**
+     * Debug mode true, make the error more understandable.
+     * @param bool $value
+     */
+    public function debug(bool $value)
+    {
+        $this->debugMode = $value;
     }
 
     /**
@@ -68,6 +81,13 @@ class Router
     }
 
     /**
+     * @throws Exception
+     */
+    public function group(array $routerOptions, Closure $closure): void
+    {
+    }
+
+    /**
      * GET
      * @param array $routerOptions Router options [0] => '/router' ['middleware' => Middleware
      * @param String $controller Controller by pattern Controller#method
@@ -76,7 +96,11 @@ class Router
     public function get(array $routerOptions, string $controller): void
     {
         $this->addRouterHandler(
-            new HttpHandler($routerOptions[0], $this->concatControllerAndNamespace($controller), 'GET')
+            new HttpHandler(
+                $routerOptions[0],
+                $this->concatControllerAndNamespace($controller),
+                'GET'
+            )
         );
     }
 
@@ -89,7 +113,11 @@ class Router
     public function post(array $routerOptions, string $controller): void
     {
         $this->addRouterHandler(
-            new HttpHandler($routerOptions[0], $this->concatControllerAndNamespace($controller), 'POST')
+            new HttpHandler(
+                $routerOptions[0],
+                $this->concatControllerAndNamespace($controller),
+                'POST'
+            )
         );
     }
 
@@ -102,7 +130,11 @@ class Router
     public function put(array $routerOptions, string $controller): void
     {
         $this->addRouterHandler(
-            new HttpHandler($routerOptions[0], $this->concatControllerAndNamespace($controller), 'PUT')
+            new HttpHandler(
+                $routerOptions[0],
+                $this->concatControllerAndNamespace($controller),
+                'PUT'
+            )
         );
     }
 
@@ -115,7 +147,11 @@ class Router
     public function patch(array $routerOptions, string $controller): void
     {
         $this->addRouterHandler(
-            new HttpHandler($routerOptions[0], $this->concatControllerAndNamespace($controller), 'PATCH')
+            new HttpHandler(
+                $routerOptions[0],
+                $this->concatControllerAndNamespace($controller),
+                'PATCH'
+            )
         );
     }
 
@@ -128,7 +164,11 @@ class Router
     public function delete(array $routerOptions, string $controller): void
     {
         $this->addRouterHandler(
-            new HttpHandler($routerOptions[0], $this->concatControllerAndNamespace($controller), 'DELETE')
+            new HttpHandler(
+                $routerOptions[0],
+                $this->concatControllerAndNamespace($controller),
+                'DELETE'
+            )
         );
     }
 
@@ -148,7 +188,7 @@ class Router
      */
     private function concatControllerAndNamespace(string $controller): string
     {
-        return $this->controllerNamespace .'\\'. $controller;
+        return $this->controllerNamespace . '\\' . $controller;
     }
 
 }
