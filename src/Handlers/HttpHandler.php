@@ -34,7 +34,7 @@ class HttpHandler extends RouterHandler
         if ($this->getHandler())
             return $this->getHandler()->handle($request);
 
-        return new Response(null, StatusCode::BAD_REQUEST);
+        return new Response(Response::NONE_VALUE, StatusCode::BAD_REQUEST);
     }
 
     /**

@@ -10,6 +10,7 @@ use ReflectionException;
 use Rodri\SimpleRouter\Exceptions\ControllerMethodNotFoundException;
 use Rodri\SimpleRouter\Handlers\HttpHandler;
 use Rodri\SimpleRouter\Handlers\RouterHandler;
+use Rodri\SimpleRouter\Helpers\ErrorHelper;
 use Rodri\SimpleRouter\Helpers\StatusCode;
 
 /**
@@ -197,48 +198,42 @@ class Router
      */
     public function dispatch(): void
     {
-
-        # If have router grouped routes
-        if($this->dispatchGroupRoutes()) return;
-
         try {
-            echo $this->baseRouterHandler->handle(new Request());
+            echo $this->runHandles($this->dispatchGroupRoutes(), $this->baseRouterHandler);
+            flush();
         } catch (ControllerMethodNotFoundException | ReflectionException $e) {
-            if ($this->debugMode) {
-                echo new Response([
-                    'Mode' => 'Debug',
-                    'error' => 'ControllerMethodNotFoundException',
-                    'message' => $e->getMessage(),
-                    'line' => $e->getLine(),
-                    'file' => $e->getFile(),
-                    'trace' => $e->getTrace()
-                ], StatusCode::INTERNAL_SERVER_ERROR);
-            } else {
-                echo new Response(null, StatusCode::INTERNAL_SERVER_ERROR);
-            }
+            echo ErrorHelper::handle($e, $this->debugMode);
         }
+    }
 
-        flush();
+    /**
+     * Run the appropriate handle or Group or Normal.
+     *
+     * @param Response $response
+     * @return Response
+     * @throws ReflectionException
+     */
+    private function runHandles(Response $response, RouterHandler $baseHandler): Response
+    {
+        return match ($response->hasResponseValue()) {
+            true => $response,
+            default => $baseHandler->handle(new Request())
+        };
     }
 
     /**
      * Dispatch all grouped routes.
      *
-     * @return bool
+     * @return Response
+     * @throws ReflectionException
      */
-    private function dispatchGroupRoutes(): bool
+    private function dispatchGroupRoutes(): Response
     {
-        foreach ($this->groupRouter as $groupRouter) {
-            if ($groupRouter instanceof Router) {
-                $response = $groupRouter->baseRouterHandler->handle(new Request());
-                if($response->hasResponseValue()) {
-                    echo $response;
-                    return true;
-                }
-            }
-        }
+        foreach ($this->groupRouter as $groupRouter)
+            if ($groupRouter instanceof Router)
+                return $groupRouter->baseRouterHandler->handle(new Request());
 
-        return false;
+        return new Response(Response::NONE_VALUE, StatusCode::BAD_REQUEST);
     }
 
     /**
@@ -255,10 +250,10 @@ class Router
      * @param String $route
      * @return String
      */
-    private function buildURI(String $route): String
+    private function buildURI(string $route): string
     {
-        if(isset($this->baseUrl)) {
-            $route = $this->baseUrl.$route;
+        if (isset($this->baseUrl)) {
+            $route = $this->baseUrl . $route;
         }
 
         return $route;

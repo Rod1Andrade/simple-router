@@ -14,6 +14,8 @@ use Rodri\SimpleRouter\Helpers\StatusCode;
  */
 class Response
 {
+    public const NONE_VALUE = 'NONE_VALUE_NULL';
+
     public function __construct(
         private mixed $response,
         String $statusCode = StatusCode::OK,
@@ -28,12 +30,12 @@ class Response
      */
     public function hasResponseValue(): bool
     {
-        return $this->response != null;
+        return $this->response !== Response::NONE_VALUE;
     }
 
     public function __toString(): string
     {
-        if($this->response != null)
+        if($this->hasResponseValue())
             return json_encode($this->response);
 
         return json_encode('');
