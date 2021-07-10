@@ -6,9 +6,12 @@ namespace Rodri\SimpleRouter;
 use Closure;
 use Exception;
 use ReflectionException;
+use Rodri\SimpleRouter\Exceptions\ControllerMethodNotFoundException;
+use Rodri\SimpleRouter\Exceptions\SimpleRouterException;
 use Rodri\SimpleRouter\Handlers\GroupHttpHandler;
 use Rodri\SimpleRouter\Handlers\HttpHandler;
 use Rodri\SimpleRouter\Handlers\RouterHandler;
+use Rodri\SimpleRouter\Helpers\StatusCode;
 
 /**
  * Class Router
@@ -67,7 +70,6 @@ class Router
     /**
      * Add a router handler to chain of responsibility
      * @param RouterHandler $routerHandler
-     * @throws Exception
      */
     public function addRouterHandler(RouterHandler $routerHandler): void
     {
@@ -91,7 +93,6 @@ class Router
      * GET
      * @param array $routerOptions Router options [0] => '/router' ['middleware' => Middleware
      * @param String $controller Controller by pattern Controller#method
-     * @throws Exception
      */
     public function get(array $routerOptions, string $controller): void
     {
@@ -108,7 +109,6 @@ class Router
      * POST
      * @param array $routerOptions Router options [0] => '/router' ['middleware' => Middleware
      * @param String $controller Controller by pattern Controller#method
-     * @throws Exception
      */
     public function post(array $routerOptions, string $controller): void
     {
@@ -125,7 +125,6 @@ class Router
      * PUT
      * @param array $routerOptions Router options [0] => '/router' ['middleware' => Middleware
      * @param String $controller Controller by pattern Controller#method
-     * @throws Exception
      */
     public function put(array $routerOptions, string $controller): void
     {
@@ -142,7 +141,6 @@ class Router
      * PATCH
      * @param array $routerOptions Router options [0] => '/router' ['middleware' => Middleware
      * @param String $controller Controller by pattern Controller#method
-     * @throws Exception
      */
     public function patch(array $routerOptions, string $controller): void
     {
@@ -159,7 +157,6 @@ class Router
      * DELETE
      * @param array $routerOptions Router options [0] => '/router' ['middleware' => Middleware
      * @param String $controller Controller by pattern Controller#method
-     * @throws Exception
      */
     public function delete(array $routerOptions, string $controller): void
     {
@@ -174,11 +171,26 @@ class Router
 
     /**
      * Dispatch to router work call the expected handle.
-     * @throws ReflectionException
      */
     public function dispatch()
     {
-        echo $this->baseRouterHandler->handle(new Request());
+        try {
+            echo $this->baseRouterHandler->handle(new Request());
+        } catch (ControllerMethodNotFoundException|ReflectionException $e) {
+            if ($this->debugMode) {
+                echo new Response([
+                    'Mode' => 'Debug',
+                    'error' => 'ControllerMethodNotFoundException',
+                    'message' => $e->getMessage(),
+                    'line' => $e->getLine(),
+                    'file' => $e->getFile(),
+                    'trace' => $e->getTrace()
+                ], StatusCode::INTERNAL_SERVER_ERROR);
+            } else {
+                echo new Response(null, StatusCode::INTERNAL_SERVER_ERROR);
+            }
+        }
+
         flush();
     }
 
@@ -190,5 +202,4 @@ class Router
     {
         return $this->controllerNamespace . '\\' . $controller;
     }
-
 }

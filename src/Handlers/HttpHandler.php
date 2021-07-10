@@ -7,8 +7,8 @@ namespace Rodri\SimpleRouter\Handlers;
 use JetBrains\PhpStorm\Pure;
 use Rodri\SimpleRouter\Request;
 use Rodri\SimpleRouter\Response;
-use Rodri\SimpleRouter\utils\ControllerMethod;
-use Rodri\SimpleRouter\utils\StatusCode;
+use Rodri\SimpleRouter\Helpers\ControllerMethod;
+use Rodri\SimpleRouter\Helpers\StatusCode;
 
 /**
  * Class HttpHandler - Handler to HTTP REQUESTS

@@ -1,7 +1,7 @@
 <?php
 
 
-namespace Rodri\SimpleRouter\utils;
+namespace Rodri\SimpleRouter\Helpers;
 
 /**
  * Class StatusCode - HTTP/1.0 Status code
@@ -50,5 +50,6 @@ namespace Rodri\SimpleRouter\utils;
 class StatusCode
 {
     public const OK = 'HTTP/1.0 200 OK';
-    const BAD_REQUEST = 'HTTP/1.0 400 Bad Request';
+    public const BAD_REQUEST = 'HTTP/1.0 400 Bad Request';
+    public const INTERNAL_SERVER_ERROR = 'HTTP/1.0 500 Internal Server Error';
 }

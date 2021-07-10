@@ -4,7 +4,7 @@
 namespace Rodri\SimpleRouter;
 
 
-use Rodri\SimpleRouter\utils\StatusCode;
+use Rodri\SimpleRouter\Helpers\StatusCode;
 
 /**
  * Class Response

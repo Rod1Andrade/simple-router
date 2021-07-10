@@ -21,7 +21,7 @@ $router->get(['/hello/message/:id'], 'HelloControllerExample#helloByMessage');
 
 $router->post(['/post'], 'HelloControllerExample#postTest');
 
-// TODO: Group router and error treatment
+// TODO: Group router
 
 # Execution of set router
 $router->dispatch();

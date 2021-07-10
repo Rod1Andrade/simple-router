@@ -6,7 +6,7 @@ namespace Rodri\SimpleRouter\Controllers;
 
 use Rodri\SimpleRouter\Request;
 use Rodri\SimpleRouter\Response;
-use Rodri\SimpleRouter\utils\StatusCode;
+use Rodri\SimpleRouter\Helpers\StatusCode;
 
 /**
  * Class HelloController Example

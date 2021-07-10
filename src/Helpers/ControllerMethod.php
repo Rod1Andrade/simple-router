@@ -1,13 +1,15 @@
 <?php
 
 
-namespace Rodri\SimpleRouter\utils;
+namespace Rodri\SimpleRouter\Helpers;
 
 
 use ReflectionException;
 use ReflectionMethod;
+use Rodri\SimpleRouter\Exceptions\ControllerMethodNotFoundException;
 use Rodri\SimpleRouter\Request;
 use Rodri\SimpleRouter\Response;
+use Rodri\SimpleRouter\utils\Message;
 
 /**
  * Class ControllerMethod
@@ -24,16 +26,18 @@ class ControllerMethod
      * Instantiate a new Class of Controller execute appropriate method
      * @param Request $request
      * @return Response|null
-     * @throws ReflectionException
      */
     public function call(Request $request): ?Response
     {
-        return $this->reflectionMethod->invoke(new $this->controller, $request);
+        try {
+            return $this->reflectionMethod->invoke(new $this->controller, $request);
+        } catch (ReflectionException $e) {
+            throw new ControllerMethodNotFoundException(Message::getError(Message::ERROR_CONTROLLER_NOT_FOUND));
+        }
     }
 
     /**
-     * Build a new instance of ContrllerMethod
-     * @throws ReflectionException
+     * Build a new instance of ControllerMethod
      */
     public static function build(String $controller): ControllerMethod
     {
@@ -41,7 +45,12 @@ class ControllerMethod
 
         $controller = explode('#', $controller);
 
-        $controllerMethod->reflectionMethod = new ReflectionMethod($controller[0], $controller[1]);
+        try {
+            $controllerMethod->reflectionMethod = new ReflectionMethod($controller[0], $controller[1]);
+        } catch (ReflectionException $e) {
+            throw new ControllerMethodNotFoundException(Message::getError(Message::ERROR_CONTROLLER_NOT_FOUND));
+        }
+
         $controllerMethod->controller = $controller[0];
 
         return $controllerMethod;
