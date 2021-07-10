@@ -1,31 +1,52 @@
 # Rodri\SimpleRouter
 
-Router to API applications
+<img src="https://img.shields.io/badge/php-%5E8.0-blue">
+
+Router to API applications is a simple router build to make easier
+and faster the process of set router. 
 
 ## How it works?
 
 ```php
+use Rodri\SimpleRouter\Router;
+
 $router = new Router();
 
-$router->configs([
-    'Content-type' => 'application/json'
+# Namespaces Configurations
+$router->setControllerNamespace('Rodri\SimpleRouter\Controllers');
+$router->setMiddlewareNamespace('Rodri\SimpleRouter\Middlewares');
+
+# Debug mode
+$router->debug(true);
+
+# Header Router Configurations
+$router->headerConfigs([
+    'Content-type: application/json'
 ]);
 
-# Middleware For all routes
-$router->middleware('Middleware');
+# Routers without group
+$router->get(['/hello'], 'HelloControllerExample#hello');
+$router->get(['/hello/message/:id'], 'HelloControllerExample#helloByMessage');
+$router->post(['/post'], 'HelloControllerExample#postTest');
 
-# Grouped Routers
-$router->group(['uri', 'middleware' => 'Middleware'], function ($router) {
-    $router->get(['/:id'], 'Controller#method');
-    $router->post([''], 'Controller#method');
-    $router->put(['/:id'], 'Controller#method');
-    $router->delete(['/:id'], 'Controller#method');
+# Router with group
+$router->group(['/group/test'], function (Router $router) {
+    $router->get([''], 'HelloControllerExample#hello');
+    $router->get(['/:id'], 'HelloControllerExample#helloByMessage');
+    $router->post([''], 'HelloControllerExample#postTest');
 });
 
-# Normal Call
-$router->get(['/user/:id', 'middleware' => 'Middleware'], 'Controller#method');
-$router->post(['/user'], 'Controller#method');
-$router->put(['/user/:id'], 'Controller#method');
-$router->delete(['/user/:id'], 'Controller#method');
+$router->group(['/group'], function (Router $router) {
+    $router->get([''], 'HelloControllerExample#hello');
+    $router->get(['/:id'], 'HelloControllerExample#helloByMessage');
+    $router->post([''], 'HelloControllerExample#postTest');
+});
+
+# Execution of set router
+$router->dispatch();
 
 ```
+
+# License
+
+MIT
