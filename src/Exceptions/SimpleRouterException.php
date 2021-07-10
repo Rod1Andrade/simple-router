@@ -8,5 +8,4 @@ use ReflectionException;
 
 class SimpleRouterException extends ReflectionException
 {
-
 }

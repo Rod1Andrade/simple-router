@@ -5,10 +5,9 @@ namespace Rodri\SimpleRouter;
 
 use Closure;
 use Exception;
+use PhpParser\Builder\Class_;
 use ReflectionException;
 use Rodri\SimpleRouter\Exceptions\ControllerMethodNotFoundException;
-use Rodri\SimpleRouter\Exceptions\SimpleRouterException;
-use Rodri\SimpleRouter\Handlers\GroupHttpHandler;
 use Rodri\SimpleRouter\Handlers\HttpHandler;
 use Rodri\SimpleRouter\Handlers\RouterHandler;
 use Rodri\SimpleRouter\Helpers\StatusCode;
@@ -25,11 +24,15 @@ class Router
     private ?RouterHandler $baseRouterHandler;
     private string $controllerNamespace;
     private bool $debugMode;
+    private ?string $baseUrl = null;
+
+    private array $groupRouter;
 
     public function __construct()
     {
         $this->baseRouterHandler = null;
         $this->debugMode = false;
+        $this->groupRouter = array();
     }
 
     /**
@@ -83,10 +86,30 @@ class Router
     }
 
     /**
-     * @throws Exception
+     * Add a new Router to group array
+     * @param Router $router
+     */
+    public function addRouterGroup(Router $router): void
+    {
+        $this->groupRouter[] = $router;
+    }
+
+    /**
+     * Group the routes to work with the same base URI. The route in group
+     * can have the same middleware defined.
+     * @param array $routerOptions Router options [0] => '/router' ['middleware' => Middleware
+     * @param Closure $closure function(Router $router)
      */
     public function group(array $routerOptions, Closure $closure): void
     {
+        $router = clone $this;
+        $router->baseUrl = null;
+        $router->baseUrl = $routerOptions[0];
+
+        # Pass to closure function a instate of route
+        $closure($router);
+
+        $this->addRouterGroup($router);
     }
 
     /**
@@ -98,7 +121,7 @@ class Router
     {
         $this->addRouterHandler(
             new HttpHandler(
-                $routerOptions[0],
+                $this->buildURI($routerOptions[0]),
                 $this->concatControllerAndNamespace($controller),
                 'GET'
             )
@@ -114,7 +137,7 @@ class Router
     {
         $this->addRouterHandler(
             new HttpHandler(
-                $routerOptions[0],
+                $this->buildURI($routerOptions[0]),
                 $this->concatControllerAndNamespace($controller),
                 'POST'
             )
@@ -130,7 +153,7 @@ class Router
     {
         $this->addRouterHandler(
             new HttpHandler(
-                $routerOptions[0],
+                $this->buildURI($routerOptions[0]),
                 $this->concatControllerAndNamespace($controller),
                 'PUT'
             )
@@ -146,7 +169,7 @@ class Router
     {
         $this->addRouterHandler(
             new HttpHandler(
-                $routerOptions[0],
+                $this->buildURI($routerOptions[0]),
                 $this->concatControllerAndNamespace($controller),
                 'PATCH'
             )
@@ -162,7 +185,7 @@ class Router
     {
         $this->addRouterHandler(
             new HttpHandler(
-                $routerOptions[0],
+                $this->buildURI($routerOptions[0]),
                 $this->concatControllerAndNamespace($controller),
                 'DELETE'
             )
@@ -172,11 +195,15 @@ class Router
     /**
      * Dispatch to router work call the expected handle.
      */
-    public function dispatch()
+    public function dispatch(): void
     {
+
+        # If have router grouped routes
+        if($this->dispatchGroupRoutes()) return;
+
         try {
             echo $this->baseRouterHandler->handle(new Request());
-        } catch (ControllerMethodNotFoundException|ReflectionException $e) {
+        } catch (ControllerMethodNotFoundException | ReflectionException $e) {
             if ($this->debugMode) {
                 echo new Response([
                     'Mode' => 'Debug',
@@ -195,11 +222,45 @@ class Router
     }
 
     /**
+     * Dispatch all grouped routes.
+     *
+     * @return bool
+     */
+    private function dispatchGroupRoutes(): bool
+    {
+        foreach ($this->groupRouter as $groupRouter) {
+            if ($groupRouter instanceof Router) {
+                $response = $groupRouter->baseRouterHandler->handle(new Request());
+                if($response->hasResponseValue()) {
+                    echo $response;
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * @param string $controller
      * @return string
      */
     private function concatControllerAndNamespace(string $controller): string
     {
         return $this->controllerNamespace . '\\' . $controller;
+    }
+
+    /**
+     * Build a URI with a base URL if exist
+     * @param String $route
+     * @return String
+     */
+    private function buildURI(String $route): String
+    {
+        if(isset($this->baseUrl)) {
+            $route = $this->baseUrl.$route;
+        }
+
+        return $route;
     }
 }

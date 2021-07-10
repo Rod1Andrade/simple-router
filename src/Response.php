@@ -22,6 +22,15 @@ class Response
         header($statusCode);
     }
 
+    /**
+     * Check if has some response value.
+     * @return bool
+     */
+    public function hasResponseValue(): bool
+    {
+        return $this->response != null;
+    }
+
     public function __toString(): string
     {
         if($this->response != null)

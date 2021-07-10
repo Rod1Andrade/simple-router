@@ -2,26 +2,6 @@
 
 require "../vendor/autoload.php";
 
-$router = new \Rodri\SimpleRouter\Router();
+# Routes of application
+require_once '../routes/routes.php';
 
-# Namespaces Configurations
-$router->setControllerNamespace('Rodri\SimpleRouter\Controllers');
-$router->setMiddlewareNamespace('Rodri\SimpleRouter\Middlewares');
-
-$router->debug(true);
-
-# Header Router Configurations
-$router->headerConfigs([
-    'Content-type: application/json'
-]);
-
-# Routers
-$router->get(['/hello'], 'HelloControllerExample#hello');
-$router->get(['/hello/message/:id'], 'HelloControllerExample#helloByMessage');
-
-$router->post(['/post'], 'HelloControllerExample#postTest');
-
-// TODO: Group router
-
-# Execution of set router
-$router->dispatch();
