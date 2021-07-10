@@ -15,10 +15,10 @@
     },
     "authors": [
         {
-            "name": "Rod1Andrade",
+            "name": "Rodrigo M.P Andrade",
             "email": "rodrigopires.profissional@gmail.com",
-            "role": "dev",
-            "homepage": "https://github.com/Rod1Andrade",
+            "role": "Developer",
+            "homepage": "https://github.com/Rod1Andrade"
         }
     ],
     "minimum-stability": "dev",
