@@ -1,6 +1,11 @@
 {
     "name": "rodri/simple-router",
     "description": "A simple router to API applications.",
+    "keywords": [
+        "routing",
+        "router",
+        "http"
+    ],
     "type": "library",
     "license": "MIT",
     "autoload": {
