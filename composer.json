@@ -12,7 +12,8 @@
         {
             "name": "Rod1Andrade",
             "email": "rodrigopires.profissional@gmail.com",
-            "role": "dev"
+            "role": "dev",
+            "homepage": "https://github.com/Rod1Andrade"
         }
     ],
     "minimum-stability": "dev",
