@@ -200,7 +200,6 @@ class Router
     {
         try {
             echo $this->runHandles($this->dispatchGroupRoutes(), $this->baseRouterHandler);
-            flush();
         } catch (ControllerMethodNotFoundException | ReflectionException $e) {
             echo ErrorHelper::handle($e, $this->debugMode);
         }
@@ -210,6 +209,7 @@ class Router
      * Run the appropriate handle or Group or Normal.
      *
      * @param Response $response
+     * @param RouterHandler $baseHandler
      * @return Response
      * @throws ReflectionException
      */
