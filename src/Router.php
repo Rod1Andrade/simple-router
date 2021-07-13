@@ -205,31 +205,12 @@ class Router
     }
 
     /**
-     * Run the appropriate handle or Group or Normal.
-     *
-     * @return Response
-     * @throws ReflectionException
-     */
-    private function runHandles(): Response
-    {
-        $groupResponse = $this->dispatchGroupRoutes();
-
-        if($groupResponse->hasResponseValue()) {
-            return $groupResponse;
-        } else if($this->baseRouterHandler) {
-            return $this->dispatchBaseHandler();
-        }
-
-        return new Response(Response::NONE_VALUE, StatusCode::BAD_REQUEST);
-    }
-
-    /**
      * Dispatch all grouped routes.
      *
      * @return Response
      * @throws ReflectionException
      */
-    private function dispatchGroupRoutes(): Response
+    public function dispatchGroupRoutes(): Response
     {
         foreach ($this->groupRouter as $groupRouter)
             if ($groupRouter instanceof Router)
@@ -241,9 +222,26 @@ class Router
     /**
      * @throws ReflectionException
      */
-    private function dispatchBaseHandler(): Response
+    public function dispatchBaseHandler(): Response
     {
-        return $this->baseRouterHandler->handle(new Request());
+        if ($this->baseRouterHandler)
+            return $this->baseRouterHandler->handle(new Request());
+        return new Response(Response::NONE_VALUE, StatusCode::BAD_REQUEST);
+    }
+
+    /**
+     * Run the appropriate handle or Group or Normal.
+     *
+     * @return Response
+     * @throws ReflectionException
+     */
+    private function runHandles(): Response
+    {
+        $groupResponse = $this->dispatchGroupRoutes();
+        if ($groupResponse->hasResponseValue())
+            return $groupResponse;
+
+        return $this->dispatchBaseHandler();
     }
 
     /**
