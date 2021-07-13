@@ -104,7 +104,6 @@ class Router
     public function group(array $routerOptions, Closure $closure): void
     {
         $router = clone $this;
-        $router->baseUrl = null;
         $router->baseUrl = $routerOptions[0];
 
         # Pass to closure function a instate of route
@@ -199,8 +198,8 @@ class Router
     public function dispatch(): void
     {
         try {
-            echo $this->runHandles($this->dispatchGroupRoutes(), $this->baseRouterHandler);
-        } catch (ControllerMethodNotFoundException | ReflectionException $e) {
+            echo $this->runHandles();
+        } catch (ControllerMethodNotFoundException | ReflectionException | Exception $e) {
             echo ErrorHelper::handle($e, $this->debugMode);
         }
     }
@@ -208,17 +207,20 @@ class Router
     /**
      * Run the appropriate handle or Group or Normal.
      *
-     * @param Response $response
-     * @param RouterHandler $baseHandler
      * @return Response
      * @throws ReflectionException
      */
-    private function runHandles(Response $response, RouterHandler $baseHandler): Response
+    private function runHandles(): Response
     {
-        return match ($response->hasResponseValue()) {
-            true => $response,
-            default => $baseHandler->handle(new Request())
-        };
+        $groupResponse = $this->dispatchGroupRoutes();
+
+        if($groupResponse->hasResponseValue()) {
+            return $groupResponse;
+        } else if($this->baseRouterHandler) {
+            return $this->dispatchBaseHandler();
+        }
+
+        return new Response(Response::NONE_VALUE, StatusCode::BAD_REQUEST);
     }
 
     /**
@@ -234,6 +236,14 @@ class Router
                 return $groupRouter->baseRouterHandler->handle(new Request());
 
         return new Response(Response::NONE_VALUE, StatusCode::BAD_REQUEST);
+    }
+
+    /**
+     * @throws ReflectionException
+     */
+    private function dispatchBaseHandler(): Response
+    {
+        return $this->baseRouterHandler->handle(new Request());
     }
 
     /**
