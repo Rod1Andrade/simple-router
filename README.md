@@ -2,8 +2,7 @@
 
 <img src="https://img.shields.io/badge/php-%5E8.0-blue">
 
-Router to API applications is a simple router build to make easier
-and faster the process of set router. 
+Router for API applications - It’s a simple route builder that makes it’s process of defining the route far more simple and faster.
 
 ## How it works?
 
