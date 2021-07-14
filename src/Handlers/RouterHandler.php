@@ -6,8 +6,6 @@ namespace Rodri\SimpleRouter\Handlers;
 use ReflectionException;
 use Rodri\SimpleRouter\Request;
 use Rodri\SimpleRouter\Response;
-use Rodri\SimpleRouter\Helpers\ControllerMethod;
-use Rodri\SimpleRouter\Helpers\StatusCode;
 
 /**
  * Class RouterHandler

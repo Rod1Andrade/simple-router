@@ -5,7 +5,6 @@ namespace Rodri\SimpleRouter;
 
 use Closure;
 use Exception;
-use PhpParser\Builder\Class_;
 use ReflectionException;
 use Rodri\SimpleRouter\Exceptions\ControllerMethodNotFoundException;
 use Rodri\SimpleRouter\Handlers\HttpHandler;
@@ -21,12 +20,12 @@ use Rodri\SimpleRouter\Helpers\StatusCode;
  */
 class Router
 {
-    # Attributes
     private ?RouterHandler $baseRouterHandler;
     private string $controllerNamespace;
     private bool $debugMode;
-    private ?string $baseUrl = null;
 
+    // TODO: Composer essa classe com uma classe GroupRouter com esses dois parametros abaixo
+    private ?string $baseUrl = null;
     private array $groupRouter;
 
     public function __construct()
@@ -66,6 +65,7 @@ class Router
      */
     public function headerConfigs(array $configs)
     {
+        // TODO: Definir uma interface melhor para a definicao de headers.
         foreach ($configs as $config) {
             header($config);
         }
@@ -212,10 +212,14 @@ class Router
      */
     public function dispatchGroupRoutes(): Response
     {
-        foreach ($this->groupRouter as $groupRouter)
-            if ($groupRouter instanceof Router)
-                return $groupRouter->baseRouterHandler->handle(new Request());
+        foreach ($this->groupRouter as $groupRouter) {
+            if ($groupRouter instanceof Router) {
+                $response = $groupRouter->baseRouterHandler->handle(new Request());
 
+                if ($response->hasResponseValue())
+                    return $response;
+            }
+        }
         return new Response(Response::NONE_VALUE, StatusCode::BAD_REQUEST);
     }
 
