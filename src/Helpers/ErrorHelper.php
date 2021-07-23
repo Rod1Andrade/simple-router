@@ -30,6 +30,6 @@ class ErrorHelper
                 'trace' => $runtimeException->getTrace()
             ], StatusCode::INTERNAL_SERVER_ERROR);
 
-        return new Response(Response::NONE_VALUE, StatusCode::INTERNAL_SERVER_ERROR);
+        return new Response(Response::INVALID_RESPONSE, StatusCode::INTERNAL_SERVER_ERROR);
     }
 }

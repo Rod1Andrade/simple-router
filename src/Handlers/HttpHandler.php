@@ -4,11 +4,10 @@
 namespace Rodri\SimpleRouter\Handlers;
 
 
-use JetBrains\PhpStorm\Pure;
-use Rodri\SimpleRouter\Request;
-use Rodri\SimpleRouter\Response;
 use Rodri\SimpleRouter\Helpers\ControllerMethod;
 use Rodri\SimpleRouter\Helpers\StatusCode;
+use Rodri\SimpleRouter\Request;
+use Rodri\SimpleRouter\Response;
 
 /**
  * Class HttpHandler - Handler to HTTP REQUESTS
@@ -34,7 +33,7 @@ class HttpHandler extends RouterHandler
         if ($this->getHandler())
             return $this->getHandler()->handle($request);
 
-        return new Response(Response::NONE_VALUE, StatusCode::BAD_REQUEST);
+        return new Response(Response::INVALID_RESPONSE, StatusCode::BAD_REQUEST);
     }
 
     /**

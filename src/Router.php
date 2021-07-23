@@ -65,7 +65,6 @@ class Router
      */
     public function headerConfigs(array $configs)
     {
-        // TODO: Definir uma interface melhor para a definicao de headers.
         foreach ($configs as $config) {
             header($config);
         }
@@ -216,11 +215,11 @@ class Router
             if ($groupRouter instanceof Router) {
                 $response = $groupRouter->baseRouterHandler->handle(new Request());
 
-                if ($response->hasResponseValue())
+                if ($response->hasInvalidResponse())
                     return $response;
             }
         }
-        return new Response(Response::NONE_VALUE, StatusCode::BAD_REQUEST);
+        return new Response(Response::INVALID_RESPONSE, StatusCode::BAD_REQUEST);
     }
 
     /**
@@ -230,7 +229,7 @@ class Router
     {
         if ($this->baseRouterHandler)
             return $this->baseRouterHandler->handle(new Request());
-        return new Response(Response::NONE_VALUE, StatusCode::BAD_REQUEST);
+        return new Response(Response::INVALID_RESPONSE, StatusCode::BAD_REQUEST);
     }
 
     /**
@@ -242,7 +241,7 @@ class Router
     private function runHandles(): Response
     {
         $groupResponse = $this->dispatchGroupRoutes();
-        if ($groupResponse->hasResponseValue())
+        if ($groupResponse->hasInvalidResponse())
             return $groupResponse;
 
         return $this->dispatchBaseHandler();
