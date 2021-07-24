@@ -19,21 +19,21 @@ For one middleware use `['middleware' => 'NameMiddlewareClass']`, to many
 
 ## Example
 ```php
+
+use Rodri\SimpleRouter\Helpers\Header;
 use Rodri\SimpleRouter\Router;
 
+# Application Routers
 $router = new Router();
 
-# Namespaces Configurations
+$router->headerConfigs([
+    Header::APPLICATION_JSON_UTF8,
+]);
+
 $router->setControllerNamespace('Rodri\SimpleRouter\Controllers');
 $router->setMiddlewareNamespace('Rodri\SimpleRouter\Middlewares');
 
-# Debug mode
 $router->debug(true);
-
-# Header Router Configurations
-$router->headerConfigs([
-    'Content-type: application/json'
-]);
 
 # Routers without group
 $router->get(['/hello'], 'HelloControllerExample#hello');
