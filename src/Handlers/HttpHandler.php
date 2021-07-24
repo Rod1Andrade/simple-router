@@ -4,11 +4,11 @@
 namespace Rodri\SimpleRouter\Handlers;
 
 
-use JetBrains\PhpStorm\Pure;
+use Rodri\SimpleRouter\Helpers\ControllerMethod;
+use Rodri\SimpleRouter\Helpers\MiddlewareMethod;
+use Rodri\SimpleRouter\Helpers\StatusCode;
 use Rodri\SimpleRouter\Request;
 use Rodri\SimpleRouter\Response;
-use Rodri\SimpleRouter\Helpers\ControllerMethod;
-use Rodri\SimpleRouter\Helpers\StatusCode;
 
 /**
  * Class HttpHandler - Handler to HTTP REQUESTS
@@ -21,20 +21,38 @@ class HttpHandler extends RouterHandler
     public function __construct(
         private string $uri,
         private string $controller,
-        private string $method = 'GET'
+        private string $method = 'GET',
+        private array $middleware = [],
     )
     {
     }
 
     public function handle(Request $request): Response
     {
-        if ($this->validateRouter($request))
+        if ($this->validateRouter($request)) {
+
+            # Middleware in router Request handler
+            if(!empty($this->middleware)) {
+                foreach($this->middleware as $middleware) {
+                    # Instantiate a middleware
+                    $middlewareInstance = MiddlewareMethod::build($middleware);
+
+                    # Run in method
+                    $middlewareResponse = $middlewareInstance->call($request);
+
+                    if($middlewareResponse instanceof Response) {
+                        return $middlewareResponse;
+                    }
+                }
+            }
+
             return ControllerMethod::build($this->controller)->call($request);
+        }
 
         if ($this->getHandler())
             return $this->getHandler()->handle($request);
 
-        return new Response(null, StatusCode::BAD_REQUEST);
+        return new Response(Response::INVALID_RESPONSE, StatusCode::BAD_REQUEST);
     }
 
     /**
