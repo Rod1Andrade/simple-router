@@ -6,6 +6,8 @@ Router for API applications - It’s a simple route builder that makes it’s pr
 
 ## How it works?
 
+Check the wiki: https://github.com/Rod1Andrade/simple-router/wiki
+
 * When instantiate a new Router is necessary set the controller
 namespace.
 * To pass params for a router just name the parameter with `:`.
