@@ -4,8 +4,6 @@
 namespace Rodri\SimpleRouter\utils;
 
 
-use PhpParser\Node\Scalar\String_;
-
 class Message
 {
 
@@ -13,8 +11,12 @@ class Message
 
     # Attributes
     private array $errorMessages;
+
     public const ERROR_CONTROLLER_NOT_FOUND = 0;
     public const ERROR_CONTROLLER_METHOD_INVOCATION = 1;
+
+    public const ERROR_MIDDLEWARE_NOT_FOUND = 3;
+    public const ERROR_MIDDLEWARE_RUN_INVOCATION = 4;
 
     private function __construct()
     {
@@ -40,7 +42,8 @@ class Message
     {
         $this->errorMessages = [
             Message::ERROR_CONTROLLER_NOT_FOUND => 'Check if the controller namespace is defined and if has a correspond method.',
-            Message::ERROR_CONTROLLER_METHOD_INVOCATION => 'Is not possible invoke the controller method, maybe some param is expected.'
+            Message::ERROR_CONTROLLER_METHOD_INVOCATION => 'Is not possible invoke the controller method, maybe some param is expected.',
+            Message::ERROR_MIDDLEWARE_RUN_INVOCATION => 'Is not possible invoke the Middleware run method, maybe some param is expected.. or you not implements the Middleware Interface.'
         ];
     }
 

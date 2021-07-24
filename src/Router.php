@@ -5,6 +5,7 @@ namespace Rodri\SimpleRouter;
 
 use Closure;
 use Exception;
+use JetBrains\PhpStorm\Pure;
 use ReflectionException;
 use Rodri\SimpleRouter\Exceptions\ControllerMethodNotFoundException;
 use Rodri\SimpleRouter\Handlers\HttpHandler;
@@ -16,23 +17,29 @@ use Rodri\SimpleRouter\Helpers\StatusCode;
  * Class Router
  * @package Rodri\SimpleRouter
  * @author Rodrigo Andrade
- * @version 1.0.0
+ * @version 1.1.1
  */
 class Router
 {
+    private const INDEX_ROUTER_MIDDLEWARE = 'middleware';
+
     private ?RouterHandler $baseRouterHandler;
+
     private string $controllerNamespace;
+    private string $middlewareNamespace;
+
     private bool $debugMode;
 
-    // TODO: Composer essa classe com uma classe GroupRouter com esses dois parametros abaixo
-    private ?string $baseUrl = null;
-    private array $groupRouter;
+    private ?string $groupBaseUrl = null;
+    private array|string $groupBaseMiddleware = [];
+
+    private array $groupRouters;
 
     public function __construct()
     {
         $this->baseRouterHandler = null;
         $this->debugMode = false;
-        $this->groupRouter = array();
+        $this->groupRouters = array();
     }
 
     /**
@@ -44,10 +51,11 @@ class Router
     }
 
     /**
-     * @param string $string
+     * @param string $namespace
      */
-    public function setMiddlewareNamespace(string $string): void
+    public function setMiddlewareNamespace(string $namespace): void
     {
+        $this->middlewareNamespace = $namespace;
     }
 
     /**
@@ -91,7 +99,7 @@ class Router
      */
     public function addRouterGroup(Router $router): void
     {
-        $this->groupRouter[] = $router;
+        $this->groupRouters[] = $router;
     }
 
     /**
@@ -103,8 +111,8 @@ class Router
     public function group(array $routerOptions, Closure $closure): void
     {
         $router = clone $this;
-        $router->baseUrl = $routerOptions[0];
-
+        $router->groupBaseUrl = $routerOptions[0];
+        $router->groupBaseMiddleware = $routerOptions[self::INDEX_ROUTER_MIDDLEWARE];
         # Pass to closure function a instate of route
         $closure($router);
 
@@ -122,14 +130,15 @@ class Router
             new HttpHandler(
                 $this->buildURI($routerOptions[0]),
                 $this->concatControllerAndNamespace($controller),
-                'GET'
+                'GET',
+                $this->getMiddlewares($routerOptions)
             )
         );
     }
 
     /**
      * POST
-     * @param array $routerOptions Router options [0] => '/router' ['middleware' => Middleware
+     * @param array $routerOptions Router options [0] => '/router' ['middleware' => Middleware]
      * @param String $controller Controller by pattern Controller#method
      */
     public function post(array $routerOptions, string $controller): void
@@ -138,7 +147,8 @@ class Router
             new HttpHandler(
                 $this->buildURI($routerOptions[0]),
                 $this->concatControllerAndNamespace($controller),
-                'POST'
+                'POST',
+                $this->getMiddlewares($routerOptions)
             )
         );
     }
@@ -154,7 +164,8 @@ class Router
             new HttpHandler(
                 $this->buildURI($routerOptions[0]),
                 $this->concatControllerAndNamespace($controller),
-                'PUT'
+                'PUT',
+                $this->getMiddlewares($routerOptions)
             )
         );
     }
@@ -170,7 +181,8 @@ class Router
             new HttpHandler(
                 $this->buildURI($routerOptions[0]),
                 $this->concatControllerAndNamespace($controller),
-                'PATCH'
+                'PATCH',
+                $this->getMiddlewares($routerOptions)
             )
         );
     }
@@ -186,7 +198,8 @@ class Router
             new HttpHandler(
                 $this->buildURI($routerOptions[0]),
                 $this->concatControllerAndNamespace($controller),
-                'DELETE'
+                'DELETE',
+                $this->getMiddlewares($routerOptions)
             )
         );
     }
@@ -211,7 +224,7 @@ class Router
      */
     public function dispatchGroupRoutes(): Response
     {
-        foreach ($this->groupRouter as $groupRouter) {
+        foreach ($this->groupRouters as $groupRouter) {
             if ($groupRouter instanceof Router) {
                 $response = $groupRouter->baseRouterHandler->handle(new Request());
 
@@ -257,14 +270,64 @@ class Router
     }
 
     /**
+     * @param string $middleware
+     * @return string
+     */
+    private function concatMiddlewareAndNamespace(string $middleware): string
+    {
+        return $this->middlewareNamespace . '\\' . $middleware;
+    }
+
+    /**
+     * @param array $routerOptions
+     * @return array
+     */
+    #[Pure] private function getMiddlewares(array $routerOptions): array
+    {
+        # Middlewares of group
+        $groupMiddlewares = [];
+        if (!empty($this->groupBaseMiddleware) && is_string($this->groupBaseMiddleware)) {
+            $groupMiddlewares[] = $this->concatMiddlewareAndNamespace($this->groupBaseMiddleware);
+        }
+
+        if (!empty($this->groupBaseMiddleware) && is_array($this->groupBaseMiddleware)) {
+            foreach ($this->groupBaseMiddleware as $middlewareItem) {
+                $groupMiddlewares[] = $this->concatMiddlewareAndNamespace($middlewareItem);
+            }
+        }
+
+        # If just exist the middleware of group return it.
+        if (!isset($routerOptions[Router::INDEX_ROUTER_MIDDLEWARE])) {
+            return $groupMiddlewares;
+        }
+
+        # If not, merge them
+        if (is_string($routerOptions[Router::INDEX_ROUTER_MIDDLEWARE])) {
+            $middleware = empty($routerOptions[Router::INDEX_ROUTER_MIDDLEWARE]) ? [] : [$this->concatMiddlewareAndNamespace($routerOptions[Router::INDEX_ROUTER_MIDDLEWARE])];
+            return array_merge($groupMiddlewares, $middleware);
+        }
+
+        if (is_array($routerOptions[Router::INDEX_ROUTER_MIDDLEWARE])) {
+            $middlewares = [];
+            foreach ($routerOptions[Router::INDEX_ROUTER_MIDDLEWARE] as $middlewareItem) {
+                $middlewares[] = $this->concatMiddlewareAndNamespace($middlewareItem);
+            }
+
+            return array_merge($groupMiddlewares, $middlewares);
+        }
+
+        return [];
+    }
+
+    /**
      * Build a URI with a base URL if exist
      * @param String $route
      * @return String
      */
     private function buildURI(string $route): string
     {
-        if (isset($this->baseUrl)) {
-            $route = $this->baseUrl . $route;
+        if (isset($this->groupBaseUrl)) {
+            $route = $this->groupBaseUrl . $route;
         }
 
         return $route;

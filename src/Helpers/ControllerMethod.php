@@ -31,8 +31,8 @@ class ControllerMethod
     {
         try {
             return $this->reflectionMethod->invoke(new $this->controller, $request);
-        } catch (ReflectionException $e) {
-            throw new ControllerMethodNotFoundException(Message::getError(Message::ERROR_CONTROLLER_NOT_FOUND));
+        } catch (ReflectionException) {
+            throw new ControllerMethodNotFoundException(Message::getError(Message::ERROR_CONTROLLER_METHOD_INVOCATION));
         }
     }
 
@@ -47,7 +47,7 @@ class ControllerMethod
 
         try {
             $controllerMethod->reflectionMethod = new ReflectionMethod($controller[0], $controller[1]);
-        } catch (ReflectionException $e) {
+        } catch (ReflectionException) {
             throw new ControllerMethodNotFoundException(Message::getError(Message::ERROR_CONTROLLER_NOT_FOUND));
         }
 
