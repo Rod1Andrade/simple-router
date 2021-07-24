@@ -112,7 +112,7 @@ class Router
     {
         $router = clone $this;
         $router->groupBaseUrl = $routerOptions[0];
-        $router->groupBaseMiddleware = $routerOptions[self::INDEX_ROUTER_MIDDLEWARE];
+        $router->groupBaseMiddleware = $routerOptions[self::INDEX_ROUTER_MIDDLEWARE] ?? [];
         # Pass to closure function a instate of route
         $closure($router);
 
