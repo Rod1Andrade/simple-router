@@ -67,6 +67,15 @@ class Request
         return $this->params;
     }
 
+    /**
+     * Get the authorization value or return false if not exists.
+     * @return bool|array
+     */
+    public function authorization(): bool|string
+    {
+        return $_SERVER['HTTP_AUTHORIZATION'] ?? false;
+    }
+
     #[Pure] public function method(string $method): bool
     {
         return $method == $this->methodRequest();
@@ -119,4 +128,5 @@ class Request
     {
         return $_SERVER['REQUEST_METHOD'];
     }
+
 }
