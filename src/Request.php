@@ -10,12 +10,13 @@ use JetBrains\PhpStorm\Pure;
  * Class Request
  * @package Rodri\SimpleRouter
  * @author Rodrigo Andrade
- * @version 1.0.0
+ * @version 1.3.0
  */
 class Request
 {
     # Attributes
     private array $params;
+    private array $values;
 
     # Constants
     public const PARAM_SEPARATOR = ':';
@@ -23,6 +24,7 @@ class Request
     public function __construct()
     {
         $this->params = [];
+        $this->values = [];
     }
 
     /**
@@ -33,6 +35,26 @@ class Request
         return file_get_contents('php://input');
     }
 
+    /**
+     * Add a new value to be carried between controllers and middlewares.
+     * @param string $name
+     * @param mixed $value
+     */
+    public function addValue(string $name, mixed $value): void
+    {
+        $this->values[$name] = $value;
+    }
+
+    /**
+     * Get a value set before to be carried
+     * @param string $name
+     * @return mixed
+     */
+    public function getValue(string $name): mixed
+    {
+        return $this->values[$name] ?? null;
+    }
+    
     /**
      * Get a value from body request
      * @param string $in
@@ -129,4 +151,16 @@ class Request
         return $_SERVER['REQUEST_METHOD'];
     }
 
+    private function __clone(): void
+    {
+    }
+
+    public function __set(string $name, $value): void
+    {
+    }
+
+    public function __get(string $name): mixed
+    {
+        return $this->getValue($name);
+    }
 }
