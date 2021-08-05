@@ -4,6 +4,12 @@
 
 Router for API applications - It’s a simple route builder that makes it’s process of defining the route far more simple and faster.
 
+## Installation
+
+```shell
+composer require rodri/simple-router:1.1.2-alpha
+```
+
 ## How it works?
 
 Check the wiki: https://github.com/Rod1Andrade/simple-router/wiki
